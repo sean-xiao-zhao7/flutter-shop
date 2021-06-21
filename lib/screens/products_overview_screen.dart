@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shop/providers/cart_provider.dart';
 import 'package:shop/providers/products_provider.dart';
+import 'package:shop/screens/cart_screen.dart';
+import 'package:shop/widgets/badge.dart';
+import 'package:shop/widgets/main_drawer.dart';
 import 'package:shop/widgets/product_item.dart';
 import 'package:provider/provider.dart';
 
@@ -18,7 +22,10 @@ class ProductsOverviewScreen extends StatelessWidget {
         ),
         actions: <Widget>[
           PopupMenuButton(
-            icon: Icon(Icons.more_vert),
+            icon: Icon(
+              Icons.more_vert_sharp,
+              color: Colors.white,
+            ),
             itemBuilder: (_) {
               return [
                 PopupMenuItem(
@@ -36,8 +43,22 @@ class ProductsOverviewScreen extends StatelessWidget {
               }
             },
           ),
+          Consumer<Cart>(
+            builder: (_, cartData, child) => Badge(
+              child: child,
+              value: cartData.itemCount.toString(),
+              color: Theme.of(context).primaryColor,
+            ),
+            child: IconButton(
+              icon: Icon(Icons.shopping_bag),
+              onPressed: () {
+                Navigator.of(context).pushNamed(CartScreen.routeName);
+              },
+            ),
+          ),
         ],
       ),
+      drawer: MainDrawer(),
       body: MyGridView(),
     );
   }
