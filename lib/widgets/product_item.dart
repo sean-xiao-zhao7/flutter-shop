@@ -40,6 +40,20 @@ class ProductItem extends StatelessWidget {
           icon: Icon(Icons.shopping_cart),
           onPressed: () {
             cart.addCartItem(product.id, product.title, product.price);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Added to cart.',
+                  textAlign: TextAlign.center,
+                ),
+                action: SnackBarAction(
+                  label: 'Undo',
+                  onPressed: () {
+                    cart.removeOneCartItem(product.id);
+                  },
+                ),
+              ),
+            );
           },
           color: Theme.of(context).accentColor,
         ),
