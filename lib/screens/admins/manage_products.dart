@@ -32,8 +32,10 @@ class ManageProductsScreen extends StatelessWidget {
             itemBuilder: (_, index) {
               return Column(
                 children: <Widget>[
-                  ManageProductItem(products.products[index].title,
-                      products.products[index].imageUrl),
+                  ManageProductItem(
+                      products.products[index].title,
+                      products.products[index].imageUrl,
+                      products.products[index].id),
                   Divider(),
                 ],
               );
