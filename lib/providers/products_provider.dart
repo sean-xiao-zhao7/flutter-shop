@@ -3,6 +3,9 @@ import 'package:shop/models/product.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+const firebaseURL =
+    'https://flutter-553e7-default-rtdb.firebaseio.com/products.json';
+
 class Products with ChangeNotifier {
   final List<Product> _products = [
     Product(
@@ -47,6 +50,15 @@ class Products with ChangeNotifier {
     return [..._products];
   }
 
+  Future<void> getProductsFromWeb() async {
+    try {
+      final res = await http.get(Uri.parse(firebaseURL));
+    } catch (e) {
+      print(e);
+      throw (e);
+    }
+  }
+
   Product findById(String id) {
     return _products.firstWhere((element) => element.id == id);
   }
@@ -56,27 +68,31 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
-  void addProduct(Product product) {
-    var url = Uri.parse(
-        'https://flutter-553e7-default-rtdb.firebaseio.com/products.json');
-    http.post(
-      url,
-      body: json.encode({
-        'title': product.title,
-        'description': product.description,
-        'imageUrl': product.imageUrl,
-        'price': product.price,
-        'isFav': product.isFav,
-      }),
-    );
-    final newProduct = Product(
-        title: product.title,
-        description: product.description,
-        price: product.price,
-        imageUrl: product.imageUrl,
-        id: DateTime.now().toString());
-    _products.add(newProduct);
-    notifyListeners();
+  Future<void> addProduct(Product product) async {
+    var url = Uri.parse(firebaseURL);
+
+    try {
+      final res = await http.post(url,
+          body: json.encode({
+            'title': product.title,
+            'description': product.description,
+            'imageUrl': product.imageUrl,
+            'price': product.price,
+            'isFav': product.isFav,
+          }));
+
+      final newProduct = Product(
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          imageUrl: product.imageUrl,
+          id: json.decode(res.body)['name']);
+      _products.add(newProduct);
+      notifyListeners();
+    } catch (e) {
+      print(e);
+      throw (e);
+    }
   }
 
   void updateProduct(Product newProduct) {
