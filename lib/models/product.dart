@@ -1,4 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+
+const firebaseURL =
+    'https://flutter-553e7-default-rtdb.firebaseio.com/products.json';
 
 class Product with ChangeNotifier {
   final String id;
@@ -17,8 +23,17 @@ class Product with ChangeNotifier {
     this.isFav = false,
   });
 
-  void toggleFav() {
+  void toggleFav() async {
+    final oldStatus = isFav;
     isFav = !isFav;
     notifyListeners();
+
+    final url =
+        firebaseURL.substring(0, firebaseURL.lastIndexOf('.')) + '/${id}.json';
+    try {
+      await http.patch(Uri.parse(url), body: json.encode({'isFav': isFav}));
+    } catch (e) {
+      isFav = oldStatus;
+    }
   }
 }

@@ -31,8 +31,17 @@ class ManageProductItem extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.delete),
-              onPressed: () {
-                Provider.of<Products>(context, listen: false).removeById(id);
+              onPressed: () async {
+                try {
+                  await Provider.of<Products>(context, listen: false)
+                      .removeById(id);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error trying to remove the product.'),
+                    ),
+                  );
+                }
               },
               color: Theme.of(context).errorColor,
             ),

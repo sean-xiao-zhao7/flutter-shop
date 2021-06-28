@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shop/errors/http_exception.dart';
 import 'package:shop/models/product.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -45,9 +46,24 @@ class Products with ChangeNotifier {
     return _products.firstWhere((element) => element.id == id);
   }
 
-  void removeById(String id) {
-    _products.removeWhere((element) => element.id == id);
+  Future<void> removeById(String id) async {
+    final url =
+        firebaseURL.substring(0, firebaseURL.lastIndexOf('.')) + '/${id}.json';
+    final existingProductIndex =
+        _products.indexWhere((element) => element.id == id);
+    var existingProduct = _products[existingProductIndex];
+    _products.removeAt(existingProductIndex);
     notifyListeners();
+    try {
+      final response = await http.delete(Uri.parse(url));
+
+      if (response.statusCode >= 400) {
+        throw HttpException('Error while removing product of ID $id.');
+      }
+      existingProduct = null;
+    } catch (error) {
+      _products.insert(existingProductIndex, existingProduct);
+    }
   }
 
   Future<void> addProduct(Product product) async {
