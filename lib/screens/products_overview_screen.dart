@@ -16,17 +16,20 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _isInit = true;
+  var _isLoading = true;
 
   @override
   void didChangeDependencies() {
     if (_isInit) {
       Future.delayed(Duration.zero).then((_) {
         Provider.of<Products>(context, listen: false).getProductsFromWeb();
+        setState(() {
+          _isLoading = false;
+          _isInit = false;
+        });
       });
     }
-    setState(() {
-      _isInit = false;
-    });
+
     super.didChangeDependencies();
   }
 
@@ -79,7 +82,13 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: MainDrawer(),
-      body: MyGridView(),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).primaryColor,
+              ),
+            )
+          : MyGridView(),
     );
   }
 }

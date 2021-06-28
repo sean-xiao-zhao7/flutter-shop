@@ -77,13 +77,22 @@ class Products with ChangeNotifier {
     }
   }
 
-  void updateProduct(Product newProduct) {
+  Future<void> updateProduct(Product newProduct) async {
     final index =
         _products.indexWhere((element) => element.id == newProduct.id);
     if (index < 0) {
       print('Error updating product.');
       return;
     } else {
+      final url = firebaseURL.substring(0, firebaseURL.lastIndexOf('.')) +
+          '/${newProduct.id}.json';
+      http.patch(Uri.parse(url),
+          body: json.encode({
+            'title': newProduct.title,
+            'description': newProduct.description,
+            'imageUrl': newProduct.imageUrl,
+            'price': newProduct.price,
+          }));
       _products[index] = newProduct;
       notifyListeners();
     }
