@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/providers/products_provider.dart';
-import 'package:shop/screens/admins/edit_product_screen.dart';
-import 'package:shop/screens/admins/manage_product_item.dart';
+import 'package:shop/screens/manage_products/edit_product_screen.dart';
+import 'package:shop/screens/manage_products/manage_product_item.dart';
 import 'package:shop/widgets/main_drawer.dart';
 
 class ManageProductsScreen extends StatelessWidget {

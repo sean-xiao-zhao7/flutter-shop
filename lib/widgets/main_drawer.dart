@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shop/screens/admins/manage_products.dart';
+import 'package:shop/screens/manage_products/manage_products.dart';
 import 'package:shop/screens/orders_screen.dart';
 
 class MainDrawer extends StatelessWidget {
