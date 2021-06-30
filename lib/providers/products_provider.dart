@@ -9,8 +9,10 @@ const firebaseURL =
 
 class Products with ChangeNotifier {
   List<Product> _products = [];
-
   var _showFavoritesOnly = false;
+  final String authToken;
+
+  Products(this.authToken, this._products);
 
   List<Product> get products {
     if (_showFavoritesOnly) {
@@ -21,7 +23,7 @@ class Products with ChangeNotifier {
 
   Future<void> getProductsFromWeb() async {
     try {
-      final res = await http.get(Uri.parse(firebaseURL));
+      final res = await http.get(Uri.parse(firebaseURL + '?auth=$authToken'));
       final data = json.decode(res.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
       data.forEach((id, product) {

@@ -22,8 +22,16 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(
-          value: Products(),
+          value: AuthProvider(),
         ),
+        ChangeNotifierProxyProvider<AuthProvider, Products>(
+            create: (ctx) => Products(null, []),
+            update: (ctx, authProvider, prevProducts) {
+              print(authProvider.getAuthToken);
+              print('--------');
+              return Products(authProvider.getAuthToken,
+                  prevProducts.products == null ? [] : prevProducts.products);
+            }),
         ChangeNotifierProvider.value(
           value: Cart(),
         ),
@@ -34,21 +42,25 @@ class MyApp extends StatelessWidget {
           create: (ctx) => AuthProvider(),
         ),
       ],
-      child: MaterialApp(
-        title: 'Shop',
-        theme: ThemeData(
-            primarySwatch: Colors.blue,
-            accentColor: Colors.cyanAccent,
-            fontFamily: 'Cantarell',
-            errorColor: Colors.red[100]),
-        home: AuthScreen(),
-        routes: {
-          ProductsOverviewScreen.routeName: (_) => ProductsOverviewScreen(),
-          ProductDetailsScreen.routeName: (_) => ProductDetailsScreen(),
-          CartScreen.routeName: (_) => CartScreen(),
-          OrdersScreen.routeName: (_) => OrdersScreen(),
-          ManageProductsScreen.routeName: (_) => ManageProductsScreen(),
-          EditProductScreen.routeName: (_) => EditProductScreen(),
+      child: Consumer<AuthProvider>(
+        builder: (ctx, authProvider, _) {
+          return MaterialApp(
+            title: 'Shop',
+            theme: ThemeData(
+                primarySwatch: Colors.blue,
+                accentColor: Colors.cyanAccent,
+                fontFamily: 'Cantarell',
+                errorColor: Colors.red[100]),
+            home: authProvider.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+            routes: {
+              ProductsOverviewScreen.routeName: (_) => ProductsOverviewScreen(),
+              ProductDetailsScreen.routeName: (_) => ProductDetailsScreen(),
+              CartScreen.routeName: (_) => CartScreen(),
+              OrdersScreen.routeName: (_) => OrdersScreen(),
+              ManageProductsScreen.routeName: (_) => ManageProductsScreen(),
+              EditProductScreen.routeName: (_) => EditProductScreen(),
+            },
+          );
         },
       ),
     );

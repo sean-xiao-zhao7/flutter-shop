@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop/errors/http_exception.dart';
 import 'package:shop/providers/auth_provider.dart';
+import 'package:shop/screens/products_overview_screen.dart';
 
 enum AuthMode { Signup, Login }
 
@@ -102,6 +104,22 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
+  void _showErrorDialog(String message) {
+    showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+                title: Text('Error.'),
+                content: Text(message),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('Confirm'),
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                    },
+                  )
+                ]));
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState.validate()) {
       // Invalid!
@@ -111,19 +129,33 @@ class _AuthCardState extends State<AuthCard> {
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.Login) {
-      // Log user in
-      await Provider.of<AuthProvider>(context, listen: false).login(
-        _authData['email'],
-        _authData['password'],
-      );
-    } else {
-      // Sign user up
-      await Provider.of<AuthProvider>(context, listen: false).register(
-        _authData['email'],
-        _authData['password'],
-      );
+    try {
+      if (_authMode == AuthMode.Login) {
+        // Log user in
+        await Provider.of<AuthProvider>(context, listen: false).login(
+          _authData['email'],
+          _authData['password'],
+        );
+      } else {
+        // Sign user up
+        await Provider.of<AuthProvider>(context, listen: false).register(
+          _authData['email'],
+          _authData['password'],
+        );
+      }
+    } on HttpException catch (e) {
+      var message = '';
+      if (e.toString().contains('EMAIL_EXISTS')) {
+        message = 'Email exists.';
+      } else if (e.toString().contains('INVALID_EMAIL')) {
+        message = 'Email not valid.';
+      }
+      _showErrorDialog(message);
+    } catch (e) {
+      _showErrorDialog(e.toString());
+      throw (e);
     }
+
     setState(() {
       _isLoading = false;
     });
@@ -167,7 +199,6 @@ class _AuthCardState extends State<AuthCard> {
                     if (value.isEmpty || !value.contains('@')) {
                       return 'Invalid email!';
                     }
-                    return null;
                     return null;
                   },
                   onSaved: (value) {
